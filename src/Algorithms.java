@@ -37,6 +37,23 @@ public class Algorithms {
 			return res;
 		}
 
+		// si on tombe sur un "."
+		else if (root == RegEx.DOT) {
+			// on créer l'automate du caractère
+			Automaton res = new Automaton(2);
+			res.addInitialState(0); // état initial
+			res.addFinalState(1); // état final
+			// on a une transition 0 -> 1 etiquetée par tout les caractères de l'alphabet
+			for (int i = RegEx.LOWERCASE_START; i <= RegEx.LOWERCASE_END; i++) {
+				res.addTransition(0, 1, i);
+			}
+			for (int i = RegEx.UPPERCASE_START; i <= RegEx.UPPERCASE_END; i++) {
+				res.addTransition(0, 1, i);
+			}
+			// pas de fils à explorer dans ce cas, on return l'automate
+			return res;
+		}
+
 		// si on tombe sur un "|"
 		else if (root == RegEx.ALTERN) {
 			// si le noeud n'a pas deux enfants, on lève une exception
@@ -74,7 +91,7 @@ public class Algorithms {
 			return res;
 		}
 
-		// si on tombe sur un "."
+		// si on tombe sur une concatenation
 		else if (root == RegEx.CONCAT) {
 			// si le noeud n'a pas deux enfants, on lève une exception
 			if (ast.subTrees.size() != 2)
@@ -153,10 +170,10 @@ public class Algorithms {
 			res.addFinalState(res.numberOfStates() - 1);
 			// l'ancien etat final admet une transition vers le nouvel etat final
 			res.addTransition(oldFinalStateId, res.getFinalStateId(), Automaton.EPSILON);
-			// l'avant dernier etat devient initial et admet une epsilon transition vers le
-			// nouvel etat final
+			// l'avant dernier etat devient initial et admet une transition epsilon vers
+			// l'ancien etat initial
 			res.addInitialState(res.numberOfStates() - 2);
-			res.addTransition(res.getInitialStateId(), oldFinalStateId, Automaton.EPSILON);
+			res.addTransition(res.getInitialStateId(), oldInitialStateId, Automaton.EPSILON);
 			return res;
 		}
 
