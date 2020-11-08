@@ -108,7 +108,7 @@ public class Algorithms {
 			// on construit l'automate de l'enfant
 			Automaton child = astToNDFA(ast.subTrees.get(0));
 
-			// le noeud initial /leftO final ne l'est plus
+			// le noeud initial / final ne l'est plus
 			int oldInitialStateId = child.getInitialStateId();
 			child.removeInitialState(oldInitialStateId);
 			int oldFinalStateId = child.getFinalStateId();
@@ -126,6 +126,36 @@ public class Algorithms {
 			// l'ancien etat initial et vers le nouvel etat final
 			res.addInitialState(res.numberOfStates() - 2);
 			res.addTransition(res.getInitialStateId(), oldInitialStateId, Automaton.EPSILON);
+			res.addTransition(res.getInitialStateId(), oldFinalStateId, Automaton.EPSILON);
+			return res;
+		}
+
+		// si on tombe sur "+"
+		else if (root == RegEx.PLUS) {
+			// si le noeud n'a pas un enfant, on lève une exception
+			if (ast.subTrees.size() != 1)
+				throw new Exception("AST mal former");
+
+			// on construit l'automate de l'enfant
+			Automaton child = astToNDFA(ast.subTrees.get(0));
+
+			// le noeud initial / final ne l'est plus
+			int oldInitialStateId = child.getInitialStateId();
+			child.removeInitialState(oldInitialStateId);
+			int oldFinalStateId = child.getFinalStateId();
+			child.removeFinalState(oldFinalStateId);
+			// l'ancien etat final admet une epsilon transition vers l'ancien etat initial
+			child.addTransition(oldFinalStateId, oldInitialStateId, Automaton.EPSILON);
+			// on créer un nouvel automate contenant le fils + 2 noeuds
+			Automaton emptyAutomaton = new Automaton(0);
+			Automaton res = Automaton.mergeAutomatons(child, emptyAutomaton, 2);
+			// le dernier etat devient final
+			res.addFinalState(res.numberOfStates() - 1);
+			// l'ancien etat final admet une transition vers le nouvel etat final
+			res.addTransition(oldFinalStateId, res.getFinalStateId(), Automaton.EPSILON);
+			// l'avant dernier etat devient initial et admet une epsilon transition vers le
+			// nouvel etat final
+			res.addInitialState(res.numberOfStates() - 2);
 			res.addTransition(res.getInitialStateId(), oldFinalStateId, Automaton.EPSILON);
 			return res;
 		}
@@ -308,13 +338,12 @@ public class Algorithms {
 				// si les états i et j ne sont pas tout les deux initiaux ou tout les deux
 				// finaux, ils ne sont pas équivalents
 				if ((automaton.isInitial(i) && !automaton.isInitial(j))
-
-						// TODO etats finaux || (!automaton.isInitial(i) && automaton.isInitial(j))
+						|| (!automaton.isInitial(i) && automaton.isInitial(j))
 						|| (automaton.isFinal(i) && !automaton.isFinal(j))
 						|| (!automaton.isFinal(i) && automaton.isFinal(j)))
 					areEquivalent[i][j] = false;
 
-		// on va marqué les etats non équivalents selon leurs transitions, on continue
+		// on va marquer les etats non équivalents selon leurs transitions, on continue
 		// tans que des etats ont été marqués non équivalent
 		boolean hasChanged = true;
 		while (hasChanged) {
@@ -330,7 +359,8 @@ public class Algorithms {
 								int destState1 = automaton.getTransitions()[i][k].get(0);
 								int destState2 = automaton.getTransitions()[j][k].get(0);
 								if (destState1 != destState2) {
-									// pour regardé toujours le même coté de la matrice, il faut que l corresponde a
+									// pour regarder toujours le même coté de la matrice, il faut que l corresponde
+									// a
 									// max(destState1, destState2) et m au min , avec l = ligne et m = colonne.
 									// Si la case est a false, alors on met aussi celle [i][j] à false
 									if (!areEquivalent[Math.max(destState1, destState2)][Math.min(destState1,
@@ -344,19 +374,10 @@ public class Algorithms {
 				}
 			}
 		}
+
 		// on a maintenant la table des équivalences, on fusionne les états equivalents
 		// q1 q2 tq il ne restera que q1 dans l'automate, et toute les transitions
 		// pointant vers q2 pointerons desormais vers q1
-
-		// on compte le nombres d'états équivalents pour savoir quelle taille d'automate
-		// construire
-		int nbEquivalentStates = 0;
-		for (int i = 1; i < areEquivalent.length; i++)
-			for (int j = 0; j < i; j++)
-				if (areEquivalent[i][j])
-					nbEquivalentStates++;
-		// on construit l'automate résultat
-		Automaton res = new Automaton(automaton.numberOfStates() - nbEquivalentStates);
 
 		// on construt les etat dans l'ordre, puis quand on voit un etat equivalent a un
 		// deja construit
@@ -380,6 +401,13 @@ public class Algorithms {
 				}
 			}
 		}
+
+		// l'automate resultat aura pour nombre d'état le nombre d'états destinations
+		// uniques
+		// dans rename
+		int nbEquivalentStates = new HashSet<Integer>(rename.values()).size();
+		// on construit l'automate résultat
+		Automaton res = new Automaton(nbEquivalentStates);
 
 		// on construit le nouvel automate
 		for (int i = 0; i < res.numberOfStates(); i++) {

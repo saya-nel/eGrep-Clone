@@ -194,6 +194,24 @@ public class Automaton {
 	}
 
 	/**
+	 * Ne fonctionne que pour un dfa / dfa min. return true si le mot est reconnu
+	 * par l'automate, false sinon
+	 * 
+	 * @param word mort à tester
+	 * @return true si le mot est reconnu par l'automate, false sinon
+	 */
+	public boolean match(String word) throws Exception {
+		int currentStateId = getInitialStateId();
+		for (int i = 0; i < word.length(); i++) {
+			// si le caractère n'est pas alphabetique on annule tout de suite
+			if (!RegEx.isLetter(word.charAt(i)))
+				return false;
+			currentStateId = transitions[currentStateId][word.charAt(i)].get(0);
+		}
+		return isFinal(currentStateId);
+	}
+
+	/**
 	 * Affiche un automate dans le terminal
 	 */
 	public void print() {

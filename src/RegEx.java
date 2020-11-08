@@ -6,6 +6,7 @@ public class RegEx {
 	static final int ETOILE = 0xE7011E;
 	static final int ALTERN = 0xA17E54;
 	static final int PROTECTION = 0xBADDAD;
+	static final int PLUS = 0xABABAB;
 
 	static final int PARENTHESEOUVRANT = 0x16641664;
 	static final int PARENTHESEFERMANT = 0x51515151;
@@ -51,6 +52,8 @@ public class RegEx {
 			return PARENTHESEOUVRANT;
 		if (c == ')')
 			return PARENTHESEFERMANT;
+		if (c == '+')
+			return PLUS;
 		return c;
 	}
 
@@ -59,6 +62,8 @@ public class RegEx {
 			result = processParenthese(result);
 		while (containEtoile(result))
 			result = processEtoile(result);
+		while (containPlus(result))
+			result = processPlus(result);
 		while (containConcat(result))
 			result = processConcat(result);
 		while (containAltern(result))
@@ -124,6 +129,32 @@ public class RegEx {
 				ArrayList<RegExTree> subTrees = new ArrayList<RegExTree>();
 				subTrees.add(last);
 				result.add(new RegExTree(ETOILE, subTrees));
+			} else {
+				result.add(t);
+			}
+		}
+		return result;
+	}
+
+	private static boolean containPlus(ArrayList<RegExTree> trees) {
+		for (RegExTree t : trees)
+			if (t.root == PLUS && t.subTrees.isEmpty())
+				return true;
+		return false;
+	}
+
+	private static ArrayList<RegExTree> processPlus(ArrayList<RegExTree> trees) throws Exception {
+		ArrayList<RegExTree> result = new ArrayList<RegExTree>();
+		boolean found = false;
+		for (RegExTree t : trees) {
+			if (!found && t.root == PLUS && t.subTrees.isEmpty()) {
+				if (result.isEmpty())
+					throw new Exception();
+				found = true;
+				RegExTree last = result.remove(result.size() - 1);
+				ArrayList<RegExTree> subTrees = new ArrayList<RegExTree>();
+				subTrees.add(last);
+				result.add(new RegExTree(PLUS, subTrees));
 			} else {
 				result.add(t);
 			}
@@ -271,6 +302,8 @@ class RegExTree {
 			return ".";
 		if (root == RegEx.ETOILE)
 			return "*";
+		if (root == RegEx.PLUS)
+			return "+";
 		if (root == RegEx.ALTERN)
 			return "|";
 		if (root == RegEx.DOT)
