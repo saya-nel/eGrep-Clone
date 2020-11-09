@@ -2,7 +2,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
 
@@ -318,18 +317,6 @@ public class Algorithms {
 		}
 
 		return res2;
-	}
-
-	private static Optional<Integer> getEquivalent(boolean[][] areEquivalent, int stateId) {
-		for (int i = 1; i < areEquivalent.length; i++) {
-			for (int j = 0; j < i; j++) {
-				if (areEquivalent[i][j] && i == stateId)
-					return Optional.of(j);
-				else if (areEquivalent[i][j] && j == stateId)
-					return Optional.of(i);
-			}
-		}
-		return Optional.empty();
 	}
 
 	/**

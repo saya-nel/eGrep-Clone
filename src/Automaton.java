@@ -28,6 +28,7 @@ public class Automaton {
 	 * @param nbStates nombre d'états de l'automate
 	 * @throws Exception si nbStates < 0
 	 */
+	@SuppressWarnings("unchecked")
 	public Automaton(int nbStates) throws Exception {
 		if (nbStates < 0)
 			throw new Exception("Le nombre d'état d'un automate doit être >= 0.");

@@ -22,14 +22,6 @@ public class RegEx {
 
 	// FROM REGEX TO SYNTAX TREE
 	public static RegExTree parse() throws Exception {
-		// BEGIN DEBUG: set conditionnal to true for debug example
-		if (false)
-			throw new Exception();
-		RegExTree example = exampleAhoUllman();
-		if (false)
-			return example;
-		// END DEBUG
-
 		ArrayList<RegExTree> result = new ArrayList<RegExTree>();
 		for (int i = 0; i < regEx.length(); i++)
 			result.add(new RegExTree(charToRoot(regEx.charAt(i)), new ArrayList<RegExTree>()));
@@ -254,25 +246,6 @@ public class RegEx {
 		for (RegExTree t : tree.subTrees)
 			subTrees.add(removeProtection(t));
 		return new RegExTree(tree.root, subTrees);
-	}
-
-	// EXAMPLE
-	// --> RegEx from Aho-Ullman book Chap.10 Example 10.25
-	private static RegExTree exampleAhoUllman() {
-		RegExTree a = new RegExTree('a', new ArrayList<RegExTree>());
-		RegExTree b = new RegExTree('b', new ArrayList<RegExTree>());
-		RegExTree c = new RegExTree('c', new ArrayList<RegExTree>());
-		ArrayList<RegExTree> subTrees = new ArrayList<RegExTree>();
-		subTrees.add(c);
-		RegExTree cEtoile = new RegExTree(ETOILE, subTrees);
-		subTrees = new ArrayList<RegExTree>();
-		subTrees.add(b);
-		subTrees.add(cEtoile);
-		RegExTree dotBCEtoile = new RegExTree(CONCAT, subTrees);
-		subTrees = new ArrayList<RegExTree>();
-		subTrees.add(a);
-		subTrees.add(dotBCEtoile);
-		return new RegExTree(ALTERN, subTrees);
 	}
 }
 
