@@ -5,31 +5,19 @@ public class PatternSearch {
 
 	private Automaton pattern;
 	private String filePath;
+	private boolean display;
 
 	/**
 	 * Construit une recherche avec un motif et un chemin de fichier
 	 * 
 	 * @param pattern  automate representant le motif
 	 * @param filePath chemin du fichier
+	 * @param display  true if need display results on standard output, false else
 	 */
-	public PatternSearch(Automaton pattern, String filePath) {
+	public PatternSearch(Automaton pattern, String filePath, boolean display) {
 		this.pattern = pattern;
 		this.filePath = filePath;
-	}
-
-	/**
-	 * Renvoie true si substring est reconnu p
-	 * 
-	 * @param substring substring to test
-	 * @return true if the substring match the pattern, false else
-	 */
-	private boolean substringMatch(String substring) {
-		try {
-			return pattern.match(substring);
-		} catch (Exception e) {
-			e.printStackTrace();
-			return false;
-		}
+		this.display = display;
 	}
 
 	/**
@@ -41,10 +29,22 @@ public class PatternSearch {
 	 *         sinon
 	 */
 	private boolean lineSearch(String line) {
-		for (int i = 0; i < line.length(); i++)
-			for (int j = i + 1; j <= line.length(); j++)
-				if (substringMatch(line.substring(i, j)))
+		int actualStateId = pattern.getInitialStateId();
+
+		for (int i = 1; i < line.length(); i++) {
+			// on "mange" le caractère courant
+			if (RegEx.isLetter(line.charAt(i))) {
+				actualStateId = pattern.getTransitions()[actualStateId][line.charAt(i)].get(0);
+				// si on est sur un état final, la ligne contient un motif respectant la regex
+				if (pattern.isFinal(actualStateId))
 					return true;
+				// si on est sur un état puit, le motif n'est pas reconnu, on repart de l'état
+				// initial
+				if (pattern.isWell(actualStateId))
+					actualStateId = pattern.getInitialStateId();
+			} else
+				actualStateId = pattern.getInitialStateId();
+		}
 		return false;
 	}
 
@@ -57,7 +57,7 @@ public class PatternSearch {
 			String currentLine = reader.readLine();
 			while (currentLine != null) {
 				boolean lineContainsPattern = lineSearch(currentLine);
-				if (lineContainsPattern)
+				if (display && lineContainsPattern)
 					System.out.println(currentLine);
 				currentLine = reader.readLine();
 			}

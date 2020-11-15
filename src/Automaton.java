@@ -108,13 +108,13 @@ public class Automaton {
 	 * @return id de l'état initial
 	 * @throws Exception si pas d'état initial
 	 */
-	public int getInitialStateId() throws Exception {
+	public int getInitialStateId() {
 		// on parcourt les etats
 		for (int i = 0; i < transitions.length; i++) {
 			if (transitions[i][INITIAL_STATE] != null)
 				return i;
 		}
-		throw new Exception("L'Automate n'a pas d'état initial");
+		return -1;
 	}
 
 	/**
@@ -123,13 +123,13 @@ public class Automaton {
 	 * @return id de l'état final
 	 * @throws Exception si pas d'état final
 	 */
-	public int getFinalStateId() throws Exception {
+	public int getFinalStateId() {
 		// on parcourt les etats
 		for (int i = 0; i < transitions.length; i++) {
 			if (transitions[i][FINAL_STATE] != null)
 				return i;
 		}
-		throw new Exception("L'Automate n'a pas d'état final");
+		return -1;
 	}
 
 	/**
@@ -153,11 +153,26 @@ public class Automaton {
 	 * @return true si l'état d'id stateId est final, false sinon
 	 * @throws Exception
 	 */
-	public boolean isFinal(int stateId) throws Exception {
+	public boolean isFinal(int stateId) {
 		// si l'état n'existe pas on lève une exception
 		if (stateId > numberOfStates())
-			throw new Exception("L'Etat n°" + stateId + " n'existe pas dans l'automate.");
+			return false;
 		return transitions[stateId][FINAL_STATE] != null;
+	}
+
+	/**
+	 * Retourne true si l'état est un puit, false sinon
+	 */
+	public boolean isWell(int stateId) {
+		// on parcours toute les transitions de l'état
+		for (int i = 0; i < AUTOMATON_NB_COLUMNS; i++) {
+			if (RegEx.isLetter(i)) {
+				// si on a une transitions qui va vers un autre etat ce n'est pas un puit
+				if (transitions[stateId][i].get(0) != stateId)
+					return false;
+			}
+		}
+		return true;
 	}
 
 	/**

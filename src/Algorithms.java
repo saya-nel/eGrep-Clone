@@ -42,7 +42,7 @@ public class Algorithms {
 			Automaton res = new Automaton(2);
 			res.addInitialState(0); // état initial
 			res.addFinalState(1); // état final
-			// on a une transition 0 -> 1 etiquetée par tout les caractères de l'alphabet
+			// on a une transition 0 -> 1 etiquetée par tout les caractères
 			for (int i = RegEx.LOWERCASE_START; i <= RegEx.LOWERCASE_END; i++) {
 				res.addTransition(0, 1, i);
 			}
@@ -238,9 +238,9 @@ public class Algorithms {
 	 * @throws Exception
 	 */
 	public static Automaton ndfaToDFA(Automaton automaton) throws Exception {
-		// le résultat, dans le pire des cas aura 2^n états, avec n = nombre d'états de
+		// le résultat, dans le pire des cas aura 2n états, avec n = nombre d'états de
 		// automaton
-		Automaton res = new Automaton((int) Math.pow(2, automaton.numberOfStates()));
+		Automaton res = new Automaton(2 * automaton.numberOfStates());
 		// fais correspondre a un ensemble d'état un stateId dans l'automate final
 		Map<Set<Integer>, Integer> bind = new HashMap<Set<Integer>, Integer>();
 		int count = 0; // necessaire pour le bind
@@ -315,7 +315,6 @@ public class Algorithms {
 				res2.getTransitions()[i][j] = res.getTransitions()[i][j];
 			}
 		}
-
 		return res2;
 	}
 

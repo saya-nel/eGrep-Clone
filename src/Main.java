@@ -40,7 +40,7 @@ public class Main {
 					System.out.println("Done.");
 					dfaMin.print();
 					System.out.println("Launch search\n\n========================================================\n");
-					PatternSearch search = new PatternSearch(dfaMin, arg[1]);
+					PatternSearch search = new PatternSearch(dfaMin, arg[1], true);
 					search.runPatternSearchOnFile();
 				}
 			} catch (Exception e) {
